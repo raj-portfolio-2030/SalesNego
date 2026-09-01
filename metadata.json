@@ -1,0 +1,7 @@
+{
+  "name": "SalesNego",
+  "description": "B2B SaaS, AI & Technology GTM Strategy, Revenue Operations and Commercial Execution",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
