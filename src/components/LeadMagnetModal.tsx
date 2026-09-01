@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { X, Download, FileText, CheckCircle2, ArrowRight, Printer, Sparkles, Building2, Mail, User, Target, Loader2 } from 'lucide-react';
 import { LeadMagnetFormData } from '../types';
 import { EXECUTION_SYSTEM_STAGES } from '../data/content';
+import { dispatchFormSubmission } from '../utils/formDispatcher';
 
 interface LeadMagnetModalProps {
   isOpen: boolean;
@@ -77,16 +78,28 @@ export default function LeadMagnetModal({ isOpen, onClose }: LeadMagnetModalProp
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Simulate brief network save
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await dispatchFormSubmission({
+        source: 'Execution Framework Lead Magnet',
+        name: formData.fullName,
+        fullName: formData.fullName,
+        email: formData.businessEmail,
+        businessEmail: formData.businessEmail,
+        company: formData.company,
+        targetMarket: formData.targetMarket,
+      });
       setIsSubmitted(true);
-    }, 600);
+    } catch (err) {
+      console.error('Lead magnet dispatch error:', err);
+      setIsSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePrintPDF = () => {

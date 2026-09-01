@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { X, Lock, ShieldCheck, CheckCircle2, ArrowRight, Building2, Mail, User, Briefcase, HelpCircle, Loader2 } from 'lucide-react';
 import { CaseStudyRequestFormData } from '../types';
+import { dispatchFormSubmission } from '../utils/formDispatcher';
 
 interface CaseStudyRequestModalProps {
   isOpen: boolean;
@@ -88,15 +89,30 @@ export default function CaseStudyRequestModal({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await dispatchFormSubmission({
+        source: 'Confidential Case Study Request',
+        name: formData.fullName,
+        fullName: formData.fullName,
+        email: formData.businessEmail,
+        businessEmail: formData.businessEmail,
+        company: formData.company,
+        domainInterest: formData.domainInterest,
+        primaryChallenge: formData.primaryChallenge,
+        ndaAccepted: formData.ndaAccepted,
+      });
       setIsSubmitted(true);
-    }, 600);
+    } catch (err) {
+      console.error('Case study dispatch error:', err);
+      setIsSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

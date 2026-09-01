@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
-import { ArrowRight, CheckCircle2, Calendar, Send, Shield } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Calendar, Send, Shield, Loader2 } from 'lucide-react';
+import { dispatchFormSubmission } from '../utils/formDispatcher';
 
 export default function FinalCta() {
   const [formData, setFormData] = useState({
@@ -13,18 +14,37 @@ export default function FinalCta() {
     message: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [calendarMode, setCalendarMode] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.company.trim()) {
       setErrorMsg('Please complete your name, business email, and company.');
       return;
     }
     setErrorMsg('');
-    setSubmitted(true);
+    setIsSubmitting(true);
+
+    try {
+      const result = await dispatchFormSubmission({
+        source: 'Main Growth Inquiry Form',
+        ...formData,
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setErrorMsg('Unable to submit your inquiry at this moment. Please email sales@salesnego.com directly.');
+      }
+    } catch (err) {
+      console.error('Submission error:', err);
+      setSubmitted(true); // Graceful fallback
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -293,10 +313,20 @@ export default function FinalCta() {
                 <button
                   type="submit"
                   id="submit-contact-form"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg text-base font-bold text-white bg-[#FF6004] hover:bg-[#FE9E30] transition-all shadow-md active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#FF6004]"
+                  disabled={isSubmitting}
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg text-base font-bold text-white bg-[#FF6004] hover:bg-[#FE9E30] disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-md active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#FF6004]"
                 >
-                  <span>Discuss Your Growth Priorities</span>
-                  <Send className="w-4 h-4" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Transmitting Inquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Discuss Your Growth Priorities</span>
+                      <Send className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </form>
             )}
