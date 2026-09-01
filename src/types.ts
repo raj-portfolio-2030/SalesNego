@@ -68,3 +68,19 @@ export interface FaqItem {
   question: string;
   answer: string;
 }
+
+export interface LeadMagnetFormData {
+  fullName: string;
+  businessEmail: string;
+  company: string;
+  targetMarket: string;
+}
+
+export interface CaseStudyRequestFormData {
+  fullName: string;
+  businessEmail: string;
+  company: string;
+  domainInterest: string;
+  primaryChallenge: string;
+  ndaAccepted: boolean;
+}
